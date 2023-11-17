@@ -16,8 +16,20 @@ export default function App() {
     setGameStarted(false)
   }
 
+  const [gameKey, setGameKey] = React.useState(Date.now())
+  function handleRestart() {
+    setGameKey(Date.now())
+  }
+
   if (gameStarted) {
-    return <Game difficulty={difficulty} onQuitGame={handleQuitGame} />
+    return (
+      <Game
+        key={gameKey}
+        difficulty={difficulty}
+        onQuitGame={handleQuitGame}
+        onRestart={handleRestart}
+      />
+    )
   }
   return (
     <Home

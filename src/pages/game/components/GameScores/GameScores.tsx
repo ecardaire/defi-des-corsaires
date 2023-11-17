@@ -12,12 +12,14 @@ type Props = {
   totalPairs: number
   pairsFound: number
   timeLeft: number
+  onRestart: () => void
 }
 
 export default function GameScores({
   totalPairs,
   pairsFound,
   timeLeft,
+  onRestart,
 }: Props) {
   const gameIsOver = pairsFound === totalPairs || timeLeft === 0
   if (!gameIsOver) return null
@@ -39,7 +41,7 @@ export default function GameScores({
           </span>
         </ScoreRow>
       </div>
-      <Button size="small" icon={<Refresh />}>
+      <Button size="small" icon={<Refresh />} onClick={onRestart}>
         Rejouer
       </Button>
       <a href="/" className="font-medium text-yellow-400">

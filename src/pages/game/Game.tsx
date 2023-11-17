@@ -18,9 +18,10 @@ import GameScores from './components/GameScores'
 type Props = {
   difficulty: Difficulty
   onQuitGame: () => void
+  onRestart: () => void
 }
 
-export default function Game({ difficulty, onQuitGame }: Props) {
+export default function Game({ difficulty, onQuitGame, onRestart }: Props) {
   const { rows, cols, label, fireIcon, time } = DIFFICULTIES[difficulty]
   const nbCards = rows * cols
 
@@ -97,6 +98,7 @@ export default function Game({ difficulty, onQuitGame }: Props) {
         totalPairs={nbCards / 2}
         pairsFound={pairsFound}
         timeLeft={timeLeft}
+        onRestart={onRestart}
       />
     </div>
   )
