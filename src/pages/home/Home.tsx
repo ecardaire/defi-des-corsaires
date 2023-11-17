@@ -1,4 +1,4 @@
-import type React from 'react'
+import React from 'react'
 import clsx from 'clsx'
 
 import treasureImg from 'assets/treasure.png'
@@ -7,9 +7,27 @@ import { DIFFICULTIES } from 'pages/game/Game.constants'
 import Button from 'components/Button'
 import Difficulty from './components/Difficulty'
 
-export default function Home() {
+type Props = {
+  username: string
+  onUsernameChange: (username: string) => void
+  difficulty: Difficulty
+  onDifficultyChange: (difficulty: Difficulty) => void
+  onStartGame: () => void
+}
+
+export default function Home({
+  username,
+  onUsernameChange,
+  difficulty,
+  onDifficultyChange,
+  onStartGame,
+}: Props) {
+  const usernameId = React.useId()
+  const difficultyLabelId = React.useId()
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    onStartGame()
   }
 
   return (
@@ -24,13 +42,19 @@ export default function Home() {
         </h1>
       </div>
       <div>
-        <label className="text-lg leading-6 font-semibold text-white text-center w-full block">
+        <label
+          htmlFor={usernameId}
+          className="text-lg leading-6 font-semibold text-white text-center w-full block"
+        >
           Entrez votre pseudo
         </label>
         <div className="relative mt-2">
           <input
+            id={usernameId}
             type="text"
             name="username"
+            value={username}
+            onChange={e => onUsernameChange(e.target.value)}
             className={clsx(
               'peer block w-full min-w-[320px] border-0 bg-transparent py-2 px-3',
               'placeholder::text-gray-300 text-white',
@@ -46,18 +70,37 @@ export default function Home() {
         </div>
       </div>
       <div>
-        <label className="text-lg leading-6 font-semibold text-white text-center w-full block">
+        <label
+          id={difficultyLabelId}
+          className="text-lg leading-6 font-semibold text-white text-center w-full block"
+        >
           Choisissez une difficulté
         </label>
         <div>
-          <div role="radiogroup" className="mt-2 flex gap-2">
-            {/* {Object.entries(DIFFICULTIES).map(([key, conf]) => (
-              // TODO: Passer les bonnes props au composant Difficulty
-            ))} */}
+          <div
+            role="radiogroup"
+            aria-labelledby={difficultyLabelId}
+            className="mt-2 flex gap-2"
+          >
+            {Object.entries(DIFFICULTIES).map(([key, conf]) => (
+              <Difficulty
+                key={key}
+                checked={difficulty === key}
+                onCheck={() => onDifficultyChange(key as Difficulty)}
+                label={conf.label}
+                minutes={Math.floor(conf.time / 60)}
+                cards={conf.rows * conf.cols}
+              />
+            ))}
           </div>
         </div>
       </div>
-      <Button type="submit" size="large" icon={<Play />}>
+      <Button
+        disabled={username.trim().length === 0}
+        type="submit"
+        size="large"
+        icon={<Play />}
+      >
         Jouer
       </Button>
     </form>
