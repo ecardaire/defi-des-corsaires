@@ -11,6 +11,7 @@ import TimeLeft from './components/TimeLeft'
 import Button from 'components/Button'
 import GameCard from './components/GameCard'
 import useMemoryGame from './hooks/useMemoryGame'
+import useTimer from './hooks/useTimer'
 
 type Props = {
   difficulty: Difficulty
@@ -22,6 +23,7 @@ export default function Game({ difficulty, onQuitGame }: Props) {
   const nbCards = rows * cols
 
   const { cards, frozen, pairsFound, handleFlipCard } = useMemoryGame(nbCards)
+  const { timeLeft } = useTimer(time)
 
   function handleQuitGame() {
     if (window.confirm('Voulez-vous vraiment abandonner ?')) {
@@ -51,7 +53,7 @@ export default function Game({ difficulty, onQuitGame }: Props) {
             </div>
           </div>
           {frozen && <Ban className="w-8 h-auto text-red-600" />}
-          <TimeLeft seconds={time} />
+          <TimeLeft seconds={timeLeft} />
         </div>
         {/* Game board */}
         <div
