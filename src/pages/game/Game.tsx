@@ -1,4 +1,3 @@
-import React from 'react'
 import clsx from 'clsx'
 
 import Fire from 'assets/icons/Fire'
@@ -7,10 +6,11 @@ import Stop from 'assets/icons/Stop'
 import Ban from 'assets/icons/Ban'
 import Link from 'assets/icons/Link'
 
-import { CARDS, DIFFICULTIES } from './Game.constants'
+import { DIFFICULTIES } from './Game.constants'
 import TimeLeft from './components/TimeLeft'
 import Button from 'components/Button'
 import GameCard from './components/GameCard'
+import useMemoryGame from './hooks/useMemoryGame'
 
 type Props = {
   difficulty: Difficulty
@@ -21,77 +21,7 @@ export default function Game({ difficulty, onQuitGame }: Props) {
   const { rows, cols, label, fireIcon, time } = DIFFICULTIES[difficulty]
   const nbCards = rows * cols
 
-  const [cards, setCards] = React.useState<GameCard[]>(() =>
-    CARDS.slice(0, nbCards)
-      .sort(() => Math.random() - 0.5)
-      .map(item => ({ ...item, found: false, flipped: false })),
-  )
-
-  const [frozen, setFrozen] = React.useState(false)
-  const pairsFound = cards.filter(item => item.found).length / 2
-
-  React.useEffect(() => {
-    let timeoutId: NodeJS.Timeout
-    // On récupère les cartes retournées et non trouvées
-    const flippedCards = cards.filter(item => item.flipped && !item.found)
-    // Si on a retourné deux cartes, on les compare
-    if (flippedCards.length === 2) {
-      const [cardA, cardB] = flippedCards
-      const cardAIndex = cards.findIndex(item => item.id === cardA.id)
-      const cardBIndex = cards.findIndex(item => item.id === cardB.id)
-
-      // Si les deux cartes sont identiques, on les marque comme trouvées
-      if (cardA.key === cardB.key) {
-        setCards(prevCards => {
-          const newCards = [...prevCards]
-          newCards[cardAIndex] = {
-            ...newCards[cardAIndex],
-            found: true,
-          }
-          newCards[cardBIndex] = {
-            ...newCards[cardBIndex],
-            found: true,
-          }
-          return newCards
-        })
-      } else {
-        // Sinon, on retourne les deux cartes après un délai
-        setFrozen(true)
-        timeoutId = setTimeout(() => {
-          setCards(prevCards => {
-            const newCards = [...prevCards]
-            newCards[cardAIndex] = {
-              ...newCards[cardAIndex],
-              flipped: false,
-            }
-            newCards[cardBIndex] = {
-              ...newCards[cardBIndex],
-              flipped: false,
-            }
-            return newCards
-          })
-          setFrozen(false)
-        }, 1000)
-      }
-    }
-
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId)
-      }
-    }
-  }, [cards])
-
-  function handleFlipCard(index: number) {
-    setCards(prevCards => {
-      const newCards = [...prevCards]
-      newCards[index] = {
-        ...newCards[index],
-        flipped: !newCards[index].flipped,
-      }
-      return newCards
-    })
-  }
+  const { cards, frozen, pairsFound, handleFlipCard } = useMemoryGame(nbCards)
 
   function handleQuitGame() {
     if (window.confirm('Voulez-vous vraiment abandonner ?')) {
