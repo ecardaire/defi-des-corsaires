@@ -27,12 +27,60 @@ export default function Game({ difficulty, onQuitGame }: Props) {
       .map(item => ({ ...item, found: false, flipped: false })),
   )
 
-  // TODO convertir en state
-  const frozen = false
-  // TODO déduire du state
-  // 💡 le nombre de paies trouvées est égal au nombre de cartes avec
-  //    `found` à true, divisé par 2
-  const pairsFound = 0
+  const [frozen, setFrozen] = React.useState(false)
+  const pairsFound = cards.filter(item => item.found).length / 2
+
+  React.useEffect(() => {
+    let timeoutId: NodeJS.Timeout
+    // On récupère les cartes retournées et non trouvées
+    const flippedCards = cards.filter(item => item.flipped && !item.found)
+    // Si on a retourné deux cartes, on les compare
+    if (flippedCards.length === 2) {
+      const [cardA, cardB] = flippedCards
+      const cardAIndex = cards.findIndex(item => item.id === cardA.id)
+      const cardBIndex = cards.findIndex(item => item.id === cardB.id)
+
+      // Si les deux cartes sont identiques, on les marque comme trouvées
+      if (cardA.key === cardB.key) {
+        setCards(prevCards => {
+          const newCards = [...prevCards]
+          newCards[cardAIndex] = {
+            ...newCards[cardAIndex],
+            found: true,
+          }
+          newCards[cardBIndex] = {
+            ...newCards[cardBIndex],
+            found: true,
+          }
+          return newCards
+        })
+      } else {
+        // Sinon, on retourne les deux cartes après un délai
+        setFrozen(true)
+        timeoutId = setTimeout(() => {
+          setCards(prevCards => {
+            const newCards = [...prevCards]
+            newCards[cardAIndex] = {
+              ...newCards[cardAIndex],
+              flipped: false,
+            }
+            newCards[cardBIndex] = {
+              ...newCards[cardBIndex],
+              flipped: false,
+            }
+            return newCards
+          })
+          setFrozen(false)
+        }, 1000)
+      }
+    }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
+    }
+  }, [cards])
 
   function handleFlipCard(index: number) {
     setCards(prevCards => {

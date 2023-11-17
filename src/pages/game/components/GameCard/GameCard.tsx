@@ -9,12 +9,18 @@ type GameCardProps = {
 }
 
 export default function GameCard({ card, onFlip }: GameCardProps) {
-  const { img, flipped } = card
+  const { img, flipped, found } = card
+
+  function handleClick() {
+    if (!found && !flipped) {
+      onFlip()
+    }
+  }
 
   return (
     <>
       <div
-        onClick={onFlip}
+        onClick={handleClick}
         className={clsx(
           'card relative h-full shadow-xl shadow-black/20',
           !card.found &&
