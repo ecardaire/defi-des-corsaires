@@ -8,15 +8,21 @@ import Refresh from 'assets/icons/Refresh'
 import Button from 'components/Button'
 import { formatSeconds } from 'utils/time'
 
-export default function GameScores() {
-  // TODO récupérer / calculer ces informations en passant les bonnes props au composant
-  const gameIsOver = false
-  const pairsFound = 0
-  const totalPairs = 0
-  const timeLeft = 0
-  const hasWon = false
+type Props = {
+  totalPairs: number
+  pairsFound: number
+  timeLeft: number
+}
 
+export default function GameScores({
+  totalPairs,
+  pairsFound,
+  timeLeft,
+}: Props) {
+  const gameIsOver = pairsFound === totalPairs || timeLeft === 0
   if (!gameIsOver) return null
+
+  const hasWon = pairsFound === totalPairs && timeLeft > 0
 
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center gap-8 bg-black/90">

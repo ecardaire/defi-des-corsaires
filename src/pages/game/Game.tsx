@@ -1,3 +1,4 @@
+import React from 'react'
 import clsx from 'clsx'
 
 import Fire from 'assets/icons/Fire'
@@ -6,12 +7,13 @@ import Stop from 'assets/icons/Stop'
 import Ban from 'assets/icons/Ban'
 import Link from 'assets/icons/Link'
 
-import { DIFFICULTIES } from './Game.constants'
-import TimeLeft from './components/TimeLeft'
 import Button from 'components/Button'
-import GameCard from './components/GameCard'
 import useMemoryGame from './hooks/useMemoryGame'
 import useTimer from './hooks/useTimer'
+import { DIFFICULTIES } from './Game.constants'
+import TimeLeft from './components/TimeLeft'
+import GameCard from './components/GameCard'
+import GameScores from './components/GameScores'
 
 type Props = {
   difficulty: Difficulty
@@ -23,7 +25,14 @@ export default function Game({ difficulty, onQuitGame }: Props) {
   const nbCards = rows * cols
 
   const { cards, frozen, pairsFound, handleFlipCard } = useMemoryGame(nbCards)
-  const { timeLeft } = useTimer(time)
+  const { timeLeft, clearTimer } = useTimer(time)
+  const gameIsOver = pairsFound === nbCards / 2 || timeLeft === 0
+
+  React.useEffect(() => {
+    if (gameIsOver) {
+      clearTimer()
+    }
+  }, [clearTimer, gameIsOver])
 
   function handleQuitGame() {
     if (window.confirm('Voulez-vous vraiment abandonner ?')) {
@@ -84,6 +93,11 @@ export default function Game({ difficulty, onQuitGame }: Props) {
           </div>
         </div>
       </div>
+      <GameScores
+        totalPairs={nbCards / 2}
+        pairsFound={pairsFound}
+        timeLeft={timeLeft}
+      />
     </div>
   )
 }
