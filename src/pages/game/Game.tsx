@@ -1,3 +1,6 @@
+import React from 'react'
+import clsx from 'clsx'
+
 import Fire from 'assets/icons/Fire'
 import logoImg from 'assets/treasure.png'
 import Stop from 'assets/icons/Stop'
@@ -6,29 +9,47 @@ import Link from 'assets/icons/Link'
 
 import { CARDS, DIFFICULTIES } from './Game.constants'
 import TimeLeft from './components/TimeLeft'
-import clsx from 'clsx'
 import Button from 'components/Button'
 import GameCard from './components/GameCard'
 
 type Props = {
   difficulty: Difficulty
+  onQuitGame: () => void
 }
 
-export default function Game({ difficulty }: Props) {
+export default function Game({ difficulty, onQuitGame }: Props) {
   const { rows, cols, label, fireIcon, time } = DIFFICULTIES[difficulty]
   const nbCards = rows * cols
 
-  // TODO: convertir en state
-  // 💡 Utiliser la fonction d'initialisation de state
-  const cards: GameCard[] = CARDS.slice(0, nbCards)
-    .sort(() => Math.random() - 0.5)
-    .map(item => ({ ...item, found: false, flipped: false }))
+  const [cards, setCards] = React.useState<GameCard[]>(() =>
+    CARDS.slice(0, nbCards)
+      .sort(() => Math.random() - 0.5)
+      .map(item => ({ ...item, found: false, flipped: false })),
+  )
 
-  // Nous servira plus tard pour bloquer temporairement le jeu lorsque
-  // le joueur à retourné deux cartes ne correspondant pas
+  // TODO convertir en state
   const frozen = false
-  // Nous déduirons le nombre de paires trouvées à partir du state plus tard
+  // TODO déduire du state
+  // 💡 le nombre de paies trouvées est égal au nombre de cartes avec
+  //    `found` à true, divisé par 2
   const pairsFound = 0
+
+  function handleFlipCard(index: number) {
+    setCards(prevCards => {
+      const newCards = [...prevCards]
+      newCards[index] = {
+        ...newCards[index],
+        flipped: !newCards[index].flipped,
+      }
+      return newCards
+    })
+  }
+
+  function handleQuitGame() {
+    if (window.confirm('Voulez-vous vraiment abandonner ?')) {
+      onQuitGame()
+    }
+  }
 
   return (
     <div className="flex flex-col items-center gap-4 max-h-screen pt-8">
@@ -63,12 +84,18 @@ export default function Game({ difficulty }: Props) {
           }}
         >
           {cards.map((item, index) => (
-            <GameCard key={index} card={item} />
+            <GameCard
+              key={index}
+              card={item}
+              onFlip={() => handleFlipCard(index)}
+            />
           ))}
         </div>
         {/* Game Footer */}
         <div className="flex items-center justify-between p-2">
-          <Button icon={<Stop />}>Abandonner</Button>
+          <Button icon={<Stop />} onClick={handleQuitGame}>
+            Abandonner
+          </Button>
           <div className="flex items-center gap-2 text-white">
             <Link className="w-6 h-auto" />
             <span className="font-bangers text-2xl">

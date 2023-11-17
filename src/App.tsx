@@ -12,8 +12,12 @@ export default function App() {
     setGameStarted(true)
   }
 
+  function handleQuitGame() {
+    setGameStarted(false)
+  }
+
   if (gameStarted) {
-    return <Game difficulty={difficulty} />
+    return <Game difficulty={difficulty} onQuitGame={handleQuitGame} />
   }
   return (
     <Home
