@@ -1,4 +1,4 @@
-import type React from 'react'
+import React from 'react'
 import clsx from 'clsx'
 
 import treasureImg from 'assets/treasure.png'
@@ -7,9 +7,26 @@ import { DIFFICULTIES } from 'pages/game/Game.constants'
 import Button from 'components/Button'
 import Difficulty from './components/Difficulty'
 
-export default function Home() {
+type Props = {
+  username : string
+  difficulty: Difficulty 
+  onUsernameChange: (username: string) => void
+  onDifficultyChange: (difficulty: Difficulty) => void
+  onGameStarted: () => void
+}
+
+export default function Home({
+  difficulty,
+  username,
+  onDifficultyChange,
+  onUsernameChange,
+  onGameStarted,
+}: Props) {
+  const usernameId = React.useId()
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    onGameStarted()
   }
 
   return (
@@ -24,11 +41,14 @@ export default function Home() {
         </h1>
       </div>
       <div>
-        <label className="text-lg leading-6 font-semibold text-white text-center w-full block">
+        <label htmlFor={usernameId} className="text-lg leading-6 font-semibold text-white text-center w-full block">
           Entrez votre pseudo
         </label>
         <div className="relative mt-2">
           <input
+            id={usernameId}
+            value={username}
+            onChange={e=> onUsernameChange(e.target.value)}
             type="text"
             name="username"
             className={clsx(
@@ -51,13 +71,20 @@ export default function Home() {
         </label>
         <div>
           <div role="radiogroup" className="mt-2 flex gap-2">
-            {/* {Object.entries(DIFFICULTIES).map(([key, conf]) => (
-              // TODO: Passer les bonnes props au composant Difficulty
-            ))} */}
+            {Object.entries(DIFFICULTIES).map(([key, conf]) => (
+              <Difficulty 
+                key={key}
+                cards={conf.cols * conf.rows}
+                minutes={conf.time / 60}
+                onCheck={() => onDifficultyChange(key as Difficulty)}
+                label={conf.label}
+                checked={difficulty === key}
+              />
+            ))}
           </div>
         </div>
       </div>
-      <Button type="submit" size="large" icon={<Play />}>
+      <Button type="submit" size="large" icon={<Play />} disabled={username.trim().length === 0}>
         Jouer
       </Button>
     </form>
