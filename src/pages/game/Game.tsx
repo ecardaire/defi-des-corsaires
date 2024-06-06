@@ -12,7 +12,7 @@ import Button from 'components/Button'
 import GameCard from './components/GameCard'
 import useMemoryGame from './hooks/useMemoryGame'
 import useTimer from './hooks/useTimer'
-import 
+
 
 type Props = {
   difficulty: Difficulty
