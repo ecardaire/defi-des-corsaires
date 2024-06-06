@@ -5,14 +5,16 @@ import cardFrontImg from 'assets/card.png'
 
 type GameCardProps = {
   card: GameCard
+  onFlip: () => void
 }
 
-export default function GameCard({ card }: GameCardProps) {
+export default function GameCard({ card, onFlip }: GameCardProps) {
   const { img, flipped } = card
 
   return (
     <>
       <div
+        onClick={onFlip}
         className={clsx(
           'card relative h-full shadow-xl shadow-black/20',
           !card.found &&

@@ -1,3 +1,4 @@
+import React from 'react'
 import Fire from 'assets/icons/Fire'
 import logoImg from 'assets/treasure.png'
 import Stop from 'assets/icons/Stop'
@@ -12,18 +13,36 @@ import GameCard from './components/GameCard'
 
 type Props = {
   difficulty: Difficulty
+  onQuitGame: () => void
 }
 
-export default function Game({ difficulty }: Props) {
+export default function Game({ difficulty, onQuitGame }: Props) {
   const { rows, cols, label, fireIcon, time } = DIFFICULTIES[difficulty]
   const nbCards = rows * cols
 
-  // TODO: convertir en state
-  // 💡 Utiliser la fonction d'initialisation de state
-  const cards: GameCard[] = CARDS.slice(0, nbCards)
+  const [cards, setCards] = React.useState<GameCard[]>(() =>
+   CARDS.slice(0, nbCards)
     .sort(() => Math.random() - 0.5)
     .map(item => ({ ...item, found: false, flipped: false }))
+    )
 
+
+  function handleFlipCard(index : number) {
+    setCards(prevCards => {
+      const newCards = [...prevCards]
+      newCards[index] = {
+        ...newCards[index],
+        flipped: !newCards[index].flipped,
+      }
+      return newCards
+    })
+  }
+
+  function handleQuitGame(){
+    if (window.confirm('Êtes vous sûr de vouloir quitter la partie? ')){
+      onQuitGame()
+    }
+  }
   // Nous servira plus tard pour bloquer temporairement le jeu lorsque
   // le joueur à retourné deux cartes ne correspondant pas
   const frozen = false
@@ -63,12 +82,12 @@ export default function Game({ difficulty }: Props) {
           }}
         >
           {cards.map((item, index) => (
-            <GameCard key={index} card={item} />
+            <GameCard key={index} card={item} onFlip={() => handleFlipCard(index)}/>
           ))}
         </div>
         {/* Game Footer */}
         <div className="flex items-center justify-between p-2">
-          <Button icon={<Stop />}>Abandonner</Button>
+          <Button icon={<Stop />} onClick={handleQuitGame}>Abandonner</Button>
           <div className="flex items-center gap-2 text-white">
             <Link className="w-6 h-auto" />
             <span className="font-bangers text-2xl">
