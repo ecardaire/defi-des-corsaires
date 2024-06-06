@@ -1,4 +1,3 @@
-import React from 'react'
 import clsx from 'clsx'
 
 import Fire from 'assets/icons/Fire'
@@ -7,10 +6,13 @@ import Stop from 'assets/icons/Stop'
 import Ban from 'assets/icons/Ban'
 import Link from 'assets/icons/Link'
 
-import { CARDS, DIFFICULTIES } from './Game.constants'
+import { DIFFICULTIES } from './Game.constants'
 import TimeLeft from './components/TimeLeft'
 import Button from 'components/Button'
 import GameCard from './components/GameCard'
+import useMemoryGame from './hooks/useMemoryGame'
+import useTimer from './hooks/useTimer'
+import 
 
 type Props = {
   difficulty: Difficulty
@@ -21,29 +23,14 @@ export default function Game({ difficulty, onQuitGame }: Props) {
   const { rows, cols, label, fireIcon, time } = DIFFICULTIES[difficulty]
   const nbCards = rows * cols
 
-  const [cards, setCards] = React.useState<GameCard[]>(() =>
-    CARDS.slice(0, nbCards)
-      .sort(() => Math.random() - 0.5)
-      .map(item => ({ ...item, found: false, flipped: false })),
-  )
+  const {
+    cards,
+    frozen,
+    pairsFound,
+    handleFlipCard,
+  } = useMemoryGame(nbCards)
 
-  // TODO convertir en state
-  const frozen = false
-  // TODO déduire du state
-  // 💡 le nombre de paies trouvées est égal au nombre de cartes avec
-  //    `found` à true, divisé par 2
-  const pairsFound = 0
-
-  function handleFlipCard(index: number) {
-    setCards(prevCards => {
-      const newCards = [...prevCards]
-      newCards[index] = {
-        ...newCards[index],
-        flipped: !newCards[index].flipped,
-      }
-      return newCards
-    })
-  }
+  const {timeLeft} = useTimer(time)
 
   function handleQuitGame() {
     if (window.confirm('Voulez-vous vraiment abandonner ?')) {
@@ -73,7 +60,7 @@ export default function Game({ difficulty, onQuitGame }: Props) {
             </div>
           </div>
           {frozen && <Ban className="w-8 h-auto text-red-600" />}
-          <TimeLeft seconds={time} />
+          <TimeLeft seconds={timeLeft} />
         </div>
         {/* Game board */}
         <div
@@ -87,7 +74,7 @@ export default function Game({ difficulty, onQuitGame }: Props) {
             <GameCard
               key={index}
               card={item}
-              onFlip={() => handleFlipCard(index)}
+              onFlip={() => !frozen && handleFlipCard(index)}
             />
           ))}
         </div>

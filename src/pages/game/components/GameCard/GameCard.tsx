@@ -9,7 +9,13 @@ type GameCardProps = {
 }
 
 export default function GameCard({ card, onFlip }: GameCardProps) {
-  const { img, flipped } = card
+  const { img, flipped, found} = card
+
+  function handleClick(){
+    if(!flipped && !found){
+      onFlip()
+    }
+  }
 
   return (
     <>
