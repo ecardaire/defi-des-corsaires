@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+import React from 'react'
 
 import Fire from 'assets/icons/Fire'
 import logoImg from 'assets/treasure.png'
@@ -12,6 +13,7 @@ import Button from 'components/Button'
 import GameCard from './components/GameCard'
 import useMemoryGame from './hooks/useMemoryGame'
 import useTimer from './hooks/useTimer'
+import GameScores from './components/GameScores'
 
 type Props = {
   difficulty: Difficulty
@@ -23,7 +25,14 @@ export default function Game({ difficulty, onQuitGame }: Props) {
   const nbCards = rows * cols
 
   const { cards, frozen, pairsFound, handleFlipCard } = useMemoryGame(nbCards)
-  const { timeLeft } = useTimer(time)
+  const { timeLeft, clearTimer} = useTimer(time)
+  const gameIsOver = pairsFound === nbCards || timeLeft ===0
+
+React.useEffect(() => {
+  if (gameIsOver){
+    clearTimer()
+  }
+}, [gameIsOver, clearTimer])
 
   function handleQuitGame() {
     if (window.confirm('Voulez-vous vraiment abandonner ?')) {
@@ -84,6 +93,7 @@ export default function Game({ difficulty, onQuitGame }: Props) {
           </div>
         </div>
       </div>
+      <GameScores pairsFound={pairsFound} totalPairs={nbCards/2} timeLeft={timeLeft}/>
     </div>
   )
 }

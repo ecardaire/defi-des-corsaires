@@ -20,11 +20,11 @@ export default function useTimer(time: number) {
     }
   }, [])
 
-  function clearTimer() {
+  const clearTimer = React.useCallback(()=> {
     if (intervalRef.current) {
       clearInterval(intervalRef.current)
     }
-  }
+  },[])
 
   return { timeLeft, clearTimer }
 }
